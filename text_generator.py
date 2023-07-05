@@ -60,7 +60,7 @@ class MyModel(tf.keras.Model):
     def __init__(self, vocab_size, embedding_dim, rnn_units):
         super().__init__(self)
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
-        self.gru = tf.keras.layers.GRU(rnn_units, return_state=True, return_state=True)
+        self.gru = tf.keras.layers.GRU(rnn_units, return_sequences=True, return_state=True)
         self.dense = tf.keras.layers.Dense(vocab_size)
     def call(self, inputs, states=None, return_state=False, training=False):
         x = self.embedding(inputs, training=training)
@@ -81,3 +81,16 @@ model = MyModel(
     rnn_units=rnn_units
 )
 
+for input_example_batch, target_example_batch in dataset.take(1):
+    example_batch_predictions = model(input_example_batch)
+
+model.summary()
+
+sampled_indices = tf.random.categorical(
+    example_batch_predictions[0], num_samples=1
+)
+sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
+
+print('Input:\n', text_from_ids(input_example_batch[0]).numpy())
+print()
+print('Next Char Predictions:\n', text_from_ids(sampled_indices).numpy())
