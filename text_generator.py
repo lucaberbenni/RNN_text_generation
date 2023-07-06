@@ -91,6 +91,10 @@ sampled_indices = tf.random.categorical(
 )
 sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
 
-print('Input:\n', text_from_ids(input_example_batch[0]).numpy())
-print()
-print('Next Char Predictions:\n', text_from_ids(sampled_indices).numpy())
+loss = tf.losses.SparseCategoricalCrossentropy(from_logits=True)
+
+example_batch_mean_loss = loss(target_example_batch, example_batch_predictions)
+
+model.compile(optimizer='adam', 
+              loss=loss)
+
